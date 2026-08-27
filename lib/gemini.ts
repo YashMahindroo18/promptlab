@@ -1,39 +1,40 @@
 // lib/gemini.ts
 import axios from 'axios';
+import { GEMINI_CONFIG } from './config';
 
-const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
-const GEMINI_MODEL = 'gemini-2.0-flash';
-
-interface GeminiResponse {
-  text: string;
-}
+const ANTHROPIC_API_KEY = process.env.ANTHROPIC_API_KEY;
 
 export async function callGemini(prompt: string): Promise<string> {
-  if (!GEMINI_API_KEY) {
-    throw new Error('GEMINI_API_KEY not set');
+  if (!ANTHROPIC_API_KEY) {
+    throw new Error('ANTHROPIC_API_KEY not set');
   }
 
   try {
     const response = await axios.post(
-      `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${GEMINI_API_KEY}`,
+      'https://api.anthropic.com/v1/messages',
       {
-        contents: [
+        model: 'claude-3-5-sonnet-20241022',
+        max_tokens: GEMINI_CONFIG.maxOutputTokens,
+        messages: [
           {
-            parts: [
-              {
-                text: prompt,
-              },
-            ],
+            role: 'user',
+            content: prompt,
           },
         ],
+      },
+      {
+        headers: {
+          'x-api-key': ANTHROPIC_API_KEY,
+          'anthropic-version': '2023-06-01',
+          'Content-Type': 'application/json',
+        },
       }
     );
 
-    const text =
-      response.data.candidates[0]?.content?.parts[0]?.text || '';
+    const text = response.data.content[0]?.text || '';
     return text;
   } catch (error) {
-    console.error('Gemini API Error:', error);
+    console.error('Claude API Error:', error);
     throw error;
   }
 }

@@ -1,4 +1,4 @@
-// lib/agents.ts - MOCK VERSION (temporary)
+// lib/agents.ts - MOCK VERSION
 
 export interface AnalysisResult {
   category: string;
@@ -33,44 +33,43 @@ export interface Variation {
   prompt: string;
 }
 
-// Mock versions - replace with real Gemini calls later
 export async function intentDetectionAgent(prompt: string): Promise<string> {
-  await new Promise(r => setTimeout(r, 500));
+  await new Promise(r => setTimeout(r, 300));
   const categories = ['Coding', 'Writing', 'Image Generation', 'Marketing', 'Education', 'Business'];
   return categories[Math.floor(Math.random() * categories.length)];
 }
 
 export async function contextAnalysisAgent(prompt: string): Promise<AnalysisResult> {
-  await new Promise(r => setTimeout(r, 500));
+  await new Promise(r => setTimeout(r, 300));
   return {
-    clarityScore: 65,
-    specificityScore: 55,
-    contextScore: 50,
-    formatScore: 60,
-    overallScore: 58,
-    missingElements: ['Target audience', 'Expected output format', 'Specific constraints'],
+    clarityScore: 68,
+    specificityScore: 62,
+    contextScore: 55,
+    formatScore: 70,
+    overallScore: 64,
+    missingElements: ['Specific use case', 'Target audience', 'Expected output format'],
   };
 }
 
 export async function optimizationAgent(prompt: string): Promise<OptimizationResult> {
-  await new Promise(r => setTimeout(r, 500));
+  await new Promise(r => setTimeout(r, 300));
   return {
-    optimizedPrompt: `You are an expert assistant. ${prompt} Please provide a clear, structured response following best practices.`,
+    optimizedPrompt: `You are an expert assistant specializing in helping users. Your task is to: ${prompt}\n\nPlease provide a comprehensive, well-structured response that addresses all aspects of this request. Consider edge cases and provide examples where relevant.`,
     improvements: [
       {
-        type: 'Added Role',
-        description: 'Defined expertise level for the AI',
-        reason: 'Helps AI understand the context and respond appropriately',
+        type: 'Added Expert Role',
+        description: 'Defined AI as a subject matter expert',
+        reason: 'Helps the AI understand the context and provide authoritative responses',
       },
       {
         type: 'Added Constraints',
-        description: 'Specified output should be structured',
-        reason: 'Ensures consistent and organized responses',
+        description: 'Requested comprehensive and structured response',
+        reason: 'Ensures organized, detailed output that covers all aspects',
       },
       {
-        type: 'Added Format',
-        description: 'Requested clear, best-practice response',
-        reason: 'Improves readability and usefulness of output',
+        type: 'Added Context Hints',
+        description: 'Mentioned edge cases and examples',
+        reason: 'Prompts the AI to think deeper and provide richer responses',
       },
     ],
   };
@@ -80,31 +79,31 @@ export async function evaluationAgent(
   originalPrompt: string,
   optimizedPrompt: string
 ): Promise<EvaluationResult> {
-  await new Promise(r => setTimeout(r, 500));
+  await new Promise(r => setTimeout(r, 300));
   return {
-    score: 82,
-    clarity: 85,
-    specificity: 80,
-    context: 80,
-    format: 82,
-    explanation: 'The optimized prompt is significantly clearer with defined role, context, and output format.',
+    score: 84,
+    clarity: 87,
+    specificity: 82,
+    context: 85,
+    format: 83,
+    explanation: 'The optimized prompt significantly improves clarity by defining the AI role, adding specific constraints, and requesting structured output.',
   };
 }
 
 export async function variationsGenerator(optimizedPrompt: string): Promise<Variation[]> {
-  await new Promise(r => setTimeout(r, 500));
+  await new Promise(r => setTimeout(r, 300));
   return [
     {
       type: 'Professional',
-      prompt: `[Professional tone] ${optimizedPrompt}`,
+      prompt: `[Professional Tone] ${optimizedPrompt.substring(0, 80)}... Please respond in a formal, business-appropriate manner.`,
     },
     {
       type: 'Creative',
-      prompt: `[Creative and innovative approach] ${optimizedPrompt}`,
+      prompt: `[Creative Approach] ${optimizedPrompt.substring(0, 80)}... Think innovatively and propose unconventional solutions.`,
     },
     {
       type: 'Concise',
-      prompt: `[Brief and direct] ${optimizedPrompt}`,
+      prompt: `[Brief & Direct] ${optimizedPrompt.substring(0, 80)}... Provide a concise response in minimal words.`,
     },
   ];
 }
