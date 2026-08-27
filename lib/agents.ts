@@ -42,6 +42,7 @@ export async function intentDetectionAgent(prompt: string): Promise<string> {
 export async function contextAnalysisAgent(prompt: string): Promise<AnalysisResult> {
   await new Promise(r => setTimeout(r, 300));
   return {
+    category: 'General', // ADD THIS LINE
     clarityScore: 68,
     specificityScore: 62,
     contextScore: 55,
