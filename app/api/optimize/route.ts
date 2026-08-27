@@ -11,6 +11,20 @@ import {
 
 const prisma = new PrismaClient();
 
+// app/api/optimize/route.ts
+import { NextRequest, NextResponse } from 'next/server';
+import { PrismaClient } from '@prisma/client';
+import { v4 as uuidv4 } from 'uuid';
+import {
+  intentDetectionAgent,
+  contextAnalysisAgent,
+  optimizationAgent,
+  evaluationAgent,
+  variationsGenerator,
+} from '@/lib/agents';
+
+const prisma = new PrismaClient();
+
 export async function POST(req: NextRequest) {
   try {
     const { prompt, title } = await req.json();
@@ -44,32 +58,38 @@ export async function POST(req: NextRequest) {
     console.log('5. Generating variations...');
     const variations = await variationsGenerator(optimization.optimizedPrompt);
 
-    // Save to Database
-    console.log('6. Saving to database...');
-try {
-  const savedPrompt = await prisma.prompt.create({
-    data: {
-      title: title || 'Untitled Prompt',
-      category: category || 'Other',
-      originalPrompt: prompt,
-      optimizedPrompt: optimization.optimizedPrompt,
-      score: evaluation.score,
-      clarity: evaluation.clarity,
-      specificity: evaluation.specificity,
-      context: evaluation.context,
-      format: evaluation.format,
-      improvements: JSON.stringify(optimization.improvements),
-      variations: JSON.stringify(variations),
-    },
-  });
-} catch (dbError) {
-  console.log('Database save skipped (expected on Vercel)');
-}
+    // Generate ID independent of database
+    const responseId = uuidv4();
 
+    // Save to Database (optional - may fail on Vercel)
+    console.log('6. Saving to database...');
+    try {
+      await prisma.prompt.create({
+        data: {
+          id: responseId,
+          title: title || 'Untitled Prompt',
+          category: category || 'Other',
+          originalPrompt: prompt,
+          optimizedPrompt: optimization.optimizedPrompt,
+          score: evaluation.score,
+          clarity: evaluation.clarity,
+          specificity: evaluation.specificity,
+          context: evaluation.context,
+          format: evaluation.format,
+          improvements: JSON.stringify(optimization.improvements),
+          variations: JSON.stringify(variations),
+        },
+      });
+      console.log('Database save successful');
+    } catch (dbError) {
+      console.log('Database save skipped (expected on Vercel):', dbError);
+    }
+
+    // Return successful response regardless of database save
     return NextResponse.json(
       {
         success: true,
-        id: savedPrompt.id,
+        id: responseId,
         category,
         originalPrompt: prompt,
         optimizedPrompt: optimization.optimizedPrompt,
