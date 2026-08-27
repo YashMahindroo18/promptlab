@@ -1,20 +1,7 @@
 // app/api/optimize/route.ts
 import { NextRequest, NextResponse } from 'next/server';
 import { PrismaClient } from '@prisma/client';
-import {
-  intentDetectionAgent,
-  contextAnalysisAgent,
-  optimizationAgent,
-  evaluationAgent,
-  variationsGenerator,
-} from '@/lib/agents';
-
-const prisma = new PrismaClient();
-
-// app/api/optimize/route.ts
-import { NextRequest, NextResponse } from 'next/server';
-import { PrismaClient } from '@prisma/client';
-import { v4 as uuidv4 } from 'uuid';
+import { randomUUID } from 'crypto';
 import {
   intentDetectionAgent,
   contextAnalysisAgent,
@@ -38,30 +25,23 @@ export async function POST(req: NextRequest) {
 
     console.log('Starting optimization pipeline...');
 
-    // Agent 1: Detect Intent
     console.log('1. Detecting intent...');
     const category = await intentDetectionAgent(prompt);
 
-    // Agent 2: Analyze Context
     console.log('2. Analyzing context...');
     const analysis = await contextAnalysisAgent(prompt);
 
-    // Agent 3: Optimize Prompt
     console.log('3. Optimizing prompt...');
     const optimization = await optimizationAgent(prompt);
 
-    // Agent 4: Evaluate
     console.log('4. Evaluating...');
     const evaluation = await evaluationAgent(prompt, optimization.optimizedPrompt);
 
-    // Generate Variations
     console.log('5. Generating variations...');
     const variations = await variationsGenerator(optimization.optimizedPrompt);
 
-    // Generate ID independent of database
-    const responseId = uuidv4();
+    const responseId = randomUUID();
 
-    // Save to Database (optional - may fail on Vercel)
     console.log('6. Saving to database...');
     try {
       await prisma.prompt.create({
@@ -82,10 +62,9 @@ export async function POST(req: NextRequest) {
       });
       console.log('Database save successful');
     } catch (dbError) {
-      console.log('Database save skipped (expected on Vercel):', dbError);
+      console.log('Database save skipped:', dbError);
     }
 
-    // Return successful response regardless of database save
     return NextResponse.json(
       {
         success: true,
