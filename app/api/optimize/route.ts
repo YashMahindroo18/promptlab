@@ -46,21 +46,25 @@ export async function POST(req: NextRequest) {
 
     // Save to Database
     console.log('6. Saving to database...');
-    const savedPrompt = await prisma.prompt.create({
-      data: {
-        title: title || 'Untitled Prompt',
-        category: category || 'Other',
-        originalPrompt: prompt,
-        optimizedPrompt: optimization.optimizedPrompt,
-        score: evaluation.score,
-        clarity: evaluation.clarity,
-        specificity: evaluation.specificity,
-        context: evaluation.context,
-        format: evaluation.format,
-        improvements: JSON.stringify(optimization.improvements),
-        variations: JSON.stringify(variations),
-      },
-    });
+try {
+  const savedPrompt = await prisma.prompt.create({
+    data: {
+      title: title || 'Untitled Prompt',
+      category: category || 'Other',
+      originalPrompt: prompt,
+      optimizedPrompt: optimization.optimizedPrompt,
+      score: evaluation.score,
+      clarity: evaluation.clarity,
+      specificity: evaluation.specificity,
+      context: evaluation.context,
+      format: evaluation.format,
+      improvements: JSON.stringify(optimization.improvements),
+      variations: JSON.stringify(variations),
+    },
+  });
+} catch (dbError) {
+  console.log('Database save skipped (expected on Vercel)');
+}
 
     return NextResponse.json(
       {
